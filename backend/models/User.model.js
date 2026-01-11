@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 
 const userSchema=new Schema(
 {
-    name:{
+    userName:{
         type:String,
         unique:true,
         lowercase:true,
@@ -22,7 +22,6 @@ const userSchema=new Schema(
     },
     password:{
         type:String,
-        unique:true,
         required:[true,"Password is required"]
     },
     refreshToken:{
@@ -38,12 +37,20 @@ const userSchema=new Schema(
 //before just  saving the data hash the password using bcrypt
 //Never use callback function with 'pre' as callbacks cant use 'this' 
 
-userSchema.pre("save",async function(next){
+// Hash password before saving.
+// Use the correct middleware signature for Mongoose pre('save') hooks.
+// For async middleware: do not include (err, req, res, next) parameters —
+// use a regular async function and either return/throw or call next() in
+// non-async style. Arrow functions should be avoided because they
+// don't bind `this`.
+userSchema.pre("save", async function () {
+    console.log("pre save hook")
+    // `this` refers to the document being saved
+    if (!this.isModified("password")) return;
+   this.password= await bcrypt.hash(this.password,10)
+    console.log("hashed password")
+});
 
-    if(!this.isModified("password")){return next()}
-    this.password=bcrypt.hash(this.password,10)
-    next()
-})
 
 //using bcrypt to compare password as well , the plain text password given by user and hashed password in db
 userSchema.methods.isPasswordCorrect=async function(password) {
@@ -53,6 +60,7 @@ userSchema.methods.isPasswordCorrect=async function(password) {
 
 //generate Access Token
 userSchema.methods.generateAccessToken=async function() {
+    console.log('inside genertae access token function in user model.js')
     return jwt.sign({
         //payload
         _id:this._id,
@@ -67,6 +75,7 @@ userSchema.methods.generateAccessToken=async function() {
 
 //generate RefreshToken
 userSchema.methods.generateRefreshToken=async function() {
+      console.log('inside genertae refresh token function in user model.js')
     return jwt.sign({
         //payload
         _id:this._id,

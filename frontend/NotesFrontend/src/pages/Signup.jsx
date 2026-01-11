@@ -8,7 +8,7 @@ import { validateEmail } from '@/utils/helper'
 
 const Signup = () => {
 
-    const [name,setName]=useState("")
+    const [userName,setUserName]=useState("")
     const [email,setEmail]=useState("")
     const [password,setPassword]=useState("")
     const [error,setError]=useState(null)
@@ -17,7 +17,7 @@ const Signup = () => {
     const handleSignUp= async (e)=>{
         e.preventDefault()
 
-        if(!name){
+        if(!userName){
             setError("Please enter name")
             return;
         }
@@ -52,10 +52,10 @@ const Signup = () => {
                 <h4 className='text-2xl mb-7'>SignUp</h4>
 
                 <input 
-                 value={name}
-                 onChange={(e)=>{setName(e.target.value)}}
+                 value={userName}
+                 onChange={(e)=>{setUserName(e.target.value)}}
                  type="text" 
-                 placeholder='Name' className='input-box'/>
+                 placeholder='UserName' className='input-box'/>
 
                  <input 
                  value={email}

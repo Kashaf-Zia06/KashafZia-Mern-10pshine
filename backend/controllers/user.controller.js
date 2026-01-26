@@ -123,6 +123,8 @@ const login=asyncHandler(async(req,res)=>{
 
     console.log("checking password valid")
 
+    console.log(existedUser.password)
+
     const passwordValid=await existedUser.isPasswordCorrect(password)
 
     console.log(passwordValid)
@@ -144,7 +146,9 @@ const login=asyncHandler(async(req,res)=>{
 
     const options={
         httpOnly:true,
-        secure:true
+        secure:false,
+         sameSite: "lax"
+        // secure:false
     }
 
     console.log("sending repsonse after logging")
@@ -170,35 +174,56 @@ const login=asyncHandler(async(req,res)=>{
 })
 
 
-const logOut=asyncHandler(async(req,res)=>{
-    console.log("Inside logout function")
-    await User.findById(
-        req.user._id,
-        {
-            $set:
-                {
-                    refreshToken:undefined
-                }
+// const logOut=asyncHandler(async(req,res)=>{
+
+//     console.log("Inside logout function")
+//     await User.findById(
+//         req.user._id,
+//         {
+//             $set:
+//                 {
+//                     refreshToken:undefined
+//                 }
             
-        },
-        {
-            new:true
-        }
-    )
+//         },
+//         {
+//             new:true
+//         }
+//     )
 
-    const options={
-        httpOnly:true,
-        secure:true
-    }
+//     const options={
+//         httpOnly:true,
+//         secure:false
+//     }
 
 
-    res.status(200).
-    clearCookie("accessToken",options).
-    clearCookie("refreshToken",options).
-    json(
-        new apiResponse(200,"User logged out successfully",options)
-    )
+//     res.status(200).
+//     clearCookie("accessToken",options).
+//     clearCookie("refreshToken",options).
+//     json(
+//         new apiResponse(200,"User logged out successfully",options)
+//     )
 
-})
+// })
+
+const logOut = asyncHandler(async (req, res) => {
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+  });
+
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+  });
+
+  return res.status(200).json({
+    success: true,
+    message: "Logged out successfully",
+  });
+});
+
 
 export  {registerUser,login,logOut}

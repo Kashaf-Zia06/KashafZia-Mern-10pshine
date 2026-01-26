@@ -59,7 +59,7 @@ userSchema.methods.isPasswordCorrect=async function(password) {
 }
 
 //generate Access Token
-userSchema.methods.generateAccessToken=async function() {
+userSchema.methods.generateAccessToken= function() {
     console.log('inside genertae access token function in user model.js')
     return jwt.sign({
         //payload
@@ -74,7 +74,7 @@ userSchema.methods.generateAccessToken=async function() {
 }
 
 //generate RefreshToken
-userSchema.methods.generateRefreshToken=async function() {
+userSchema.methods.generateRefreshToken= function() {
       console.log('inside genertae refresh token function in user model.js')
     return jwt.sign({
         //payload

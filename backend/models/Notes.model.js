@@ -26,4 +26,4 @@ const NotesSchema=new Schema({
 
 )
 
-export default Notes=mongoose.model("Notes",NotesSchema)
+export const Notes=mongoose.model("Notes",NotesSchema)

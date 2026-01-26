@@ -4,7 +4,7 @@ import {MdOutlinePushPin} from "react-icons/md"
 
 const NoteCard = ({title,content,isPinned,date,onDelete,onEdit}) => {
   return (
-    <div className='border rounded p-4 bg-transparent text-white hover:shadow-xl transition-all ease-in-out'>
+    <div className='border rounded p-4 bg-[#ffa232] border-3 border-[#da7a2c] text-white hover:shadow-xl transition-all ease-in-out'>
         <div className='flex  items-center justify-between' >
             <div>
                 <h6 className='text-sm font-medium text-white'>{title}</h6>

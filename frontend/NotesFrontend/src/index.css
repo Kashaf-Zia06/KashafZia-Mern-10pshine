@@ -1,6 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,200..1000;1,200..1000&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
+@import 'react-quill/dist/quill.snow.css';
+
+
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Mulish:ital,wght@0,200..1000;1,200..1000&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Quicksand:wght@300..700&display=swap');
+
 
 
 
@@ -131,17 +136,33 @@
 }
 
 .input-box{
-  @apply w-full text-sm bg-transparent border-gray-400 border-[1.5px] px-5 py-3 rounded mb-4 outline-none
+  @apply w-full text-sm  px-5 py-3 rounded mb-4 outline-none border-[1.5px] border-gray-400 bg-transparent   text-white 
+}
+
+.custom-text{
+  font-family: Quicksand;
+  font-style: normal;
+  font-size: medium;
 }
 
 .btn-primary{
-  @apply w-full text-sm bg-blue-500 text-white p-2 rounded my-1 hover:bg-blue-300
+  @apply w-full rounded bg-[#9f9c9ca6] p-2 text-sm text-white hover:bg-[#8f8c8ca6] transition duration-200 hover:cursor-pointer
 }
 
 .icon-btn{
-  @apply text-xl text-slate-300 cursor-pointer
+  @apply text-xl text-slate-300   hover:text-green-500 cursor-pointer
 }
 
 .input-label{
-  @apply text-xs text-slate-200
+  @apply text-xs text-slate-700
+}
+
+.ql-toolbar {
+  background-color: #f5f5f5; /* your bg color */
+  border-radius: 6px;
+}
+
+.ql-container {
+  min-height: 200px;
+  border-radius: 6px;
 }

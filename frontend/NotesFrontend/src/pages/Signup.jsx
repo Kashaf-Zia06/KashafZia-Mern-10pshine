@@ -68,9 +68,9 @@ const Signup = () => {
     <>
     <Navbar/>
     <div className='flex items-center justify-center mt-26'>
-        <div className='w-96 border rounded bg-white px-7 py-10' >
+        <div className='w-96 mx-auto bg-transparent border-[3px] border-white rounded-[30px] px-7 py-10' >
             <form onSubmit={handleSignUp}>
-                <h4 className='text-2xl mb-7'>SignUp</h4>
+                <h4 className='text-2xl mb-7 text-white text-center'>SignUp</h4>
 
                 <input 
                  value={userName}
@@ -93,9 +93,9 @@ const Signup = () => {
 
                 <button type='submit' className='btn-primary'>Create account</button>
 
-                <p className='text-sm text-center mt-4'>
+                <p className='text-sm text-white text-center mt-4'>
                     Already have an account?{" "}
-                    <Link to='/login' className='font-medium underline text-primary'>
+                    <Link to='/login' className='text-[#fffdfdd1] font-medium underline text-primary'>
                     Login
                     </Link>
                 </p>

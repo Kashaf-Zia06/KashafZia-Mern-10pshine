@@ -1,6 +1,6 @@
 import Navbar from '@/components/Navbar'
 import PasswordInput from '@/components/PasswordInput'
-import { validateEmail } from '@/utils/helper'
+import { getInitials, validateEmail } from '@/utils/helper'
 import axios from 'axios'
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
@@ -38,6 +38,7 @@ const Login = () => {
 
        try {
         console.log("inside try block of login api posting axios")
+        
         const res=await axios.post(
             "http://localhost:5005/users/login",
             {email,password},
@@ -45,7 +46,9 @@ const Login = () => {
             
             
         )
+        
         navigate("/dashboard")
+        
         console.log(res.data)
        } 
        catch (err) {
@@ -60,9 +63,9 @@ const Login = () => {
     <>
       <Navbar/>
     <div className='flex items-center justify-center mt-26'>
-        <div className='w-96 border rounded bg-white px-7 py-10' >
+        <div className='w-96 mx-auto bg-transparent border-[3px] border-white rounded-[30px] px-7 py-10' >
             <form onSubmit={handleLogin}>
-                <h4 className='text-2xl mb-7'>Login</h4>
+                <h4 className='text-2xl text-white text-center mb-7'>Login</h4>
 
                 <input value={email} onChange={(e)=>{setEmail(e.target.value)}} 
                 type="text" placeholder='Email' className='input-box'/>
@@ -73,9 +76,9 @@ const Login = () => {
 
                 <button onClick={handleLogin} type='submit' className='btn-primary'>Login</button>
 
-                <p className='text-sm text-center mt-4'>
+                <p className='text-sm text-white text-center mt-4'>
                     Not registered yet?{" "}
-                    <Link to='/Signup' className='font-medium underline text-primary'>
+                    <Link to='/Signup' className='font-medium underline text-[#fffdfdd1]'>
                     Create an account
                     </Link>
                 </p>

@@ -4,6 +4,7 @@ import { ApiError } from "../utils/apiError.js";
 import { apiResponse } from "../utils/apiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
+
 const generateAccessRefreshTokens=async(userId)=>{
     try {
         console.log("Inside generateaccessrefresh token function in user controller")
@@ -142,7 +143,9 @@ const login=asyncHandler(async(req,res)=>{
 
     const loggedInUser=await User.findById(existedUser._id).select("-password -refreshToken")
 
-    console.log(loggedInUser)
+    
+
+    // console.log(loggedInUser)
 
     const options={
         httpOnly:true,

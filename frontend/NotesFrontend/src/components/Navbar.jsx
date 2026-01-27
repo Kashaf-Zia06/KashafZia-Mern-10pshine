@@ -39,7 +39,7 @@ const Navbar = () => {
 
     return (
         <div className='flex items-center justify-between px-6 py-2 drop-shadow'>
-            <h2 className='text-[#17B169] text-5xl py-2 font-medium'>NOTES</h2>
+            <h2 className='text-white text-4xl py-2 font-medium'>NOTES</h2>
             <SearchBar
                 value={searchQuery}
                 onChange={({ target }) => {

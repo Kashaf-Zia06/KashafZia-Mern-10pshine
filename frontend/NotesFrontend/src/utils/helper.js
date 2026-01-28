@@ -7,7 +7,8 @@ export const validateEmail=(email)=>{
 }
 
 
-export const getInitials=(name)=>{
+ const getInitials=(name)=>{
+    console.log("Inside getInitials")
     if(!name)
         return ""
 
@@ -20,4 +21,6 @@ export const getInitials=(name)=>{
 
     }
     return initials.toUpperCase();
-}
+} 
+
+export {getInitials}

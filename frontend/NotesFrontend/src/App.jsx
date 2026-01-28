@@ -41,11 +41,11 @@ function App() {
         <DarkVeil />
       </div> */}
 
-      <div 
+      {/* <div 
       className="fixed inset-0 -z-10"
       style={myStyle}>
 
-      </div>
+      </div> */}
       
      <div>
 

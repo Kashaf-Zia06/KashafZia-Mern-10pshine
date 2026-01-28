@@ -3,6 +3,9 @@ import { User } from "../models/User.model.js";
 import { ApiError } from "../utils/apiError.js";
 import { apiResponse } from "../utils/apiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import crypto from "crypto";
+import { sendEmail } from "../utils/sendEmail.js";
+
 
 
 const generateAccessRefreshTokens=async(userId)=>{
@@ -229,4 +232,74 @@ const logOut = asyncHandler(async (req, res) => {
 });
 
 
-export  {registerUser,login,logOut}
+const forgotPassword = asyncHandler(async (req, res) => {
+    console.log("Inside forgot password iin user controller")
+    const { email } = req.body;
+    console.log(email)
+    if (!email) throw new ApiError(400, "Email is required");
+
+    const user = await User.findOne({ email });
+    console.log(user)
+    if (!user) throw new ApiError(404, "User not found");
+
+    console.log("resetting password token")
+    const resetToken = user.generatePasswordResetToken();
+    await user.save({ validateBeforeSave: false });
+
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+
+      console.log("sending mail reset")
+    await sendEmail({
+        to: user.email,
+        subject: "Reset your password",
+        html: `
+            <p>You requested a password reset</p>
+            <p>Click below to reset:</p>
+            <a href="${resetUrl}">${resetUrl}</a>
+            <p>This link expires in 15 minutes</p>
+        `,
+    });
+
+    res.status(200).json(
+        new apiResponse(200, "Password reset link sent to email")
+    );
+});
+
+
+const resetPassword = asyncHandler(async (req, res) => {
+  console.log("Inside reset password")
+    const { token } = req.params;
+    const { password } = req.body;
+
+    console.log("token:", token)
+    console.log("password",password)
+
+    console.log("creating hashed token")
+
+    const hashedToken = crypto
+        .createHash("sha256")
+        .update(token)
+        .digest("hex");
+
+    const user = await User.findOne({
+        resetPasswordToken: hashedToken,
+        resetPasswordExpiry: { $gt: Date.now() },
+    });
+
+    if (!user) throw new ApiError(400, "Token invalid or expired");
+
+    user.password = password; // bcrypt hook will hash
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpiry = undefined;
+
+    await user.save();
+
+    res.status(200).json(
+        new apiResponse(200, "Password reset successful")
+    );
+});
+
+
+
+
+export  {registerUser,login,logOut,forgotPassword,resetPassword}

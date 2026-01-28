@@ -136,7 +136,13 @@
 }
 
 .input-box{
-  @apply w-full text-sm  px-5 py-3 rounded mb-4 outline-none border-[1.5px] border-gray-400 bg-transparent   text-white 
+  @apply w-full text-sm  px-5 py-3 rounded mb-4 outline-none border-[1.5px] border-gray-400 bg-transparent  
+   text-white 
+}
+
+.input-box{
+  font-style: normal;
+  font-weight: 200;
 }
 
 .custom-text{
@@ -165,4 +171,19 @@
 .ql-container {
   min-height: 200px;
   border-radius: 6px;
+}
+
+.reset-btn{
+  @apply w-[1/2] rounded bg-[#9f9c9ca6] p-2 hover:bg-[#8f8c8ca6] transition duration-200 hover:cursor-pointer
+}
+
+.reset-box{
+margin: auto;
+    width: 30%;
+    margin-top: 14%;
+    border: 2px solid white;
+    border-radius: 16px;
+    padding: 30px;
+    display:flex;
+    flex-direction: column;
 }

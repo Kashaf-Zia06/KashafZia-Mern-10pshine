@@ -7,6 +7,9 @@ import Home from './pages/Home';
 import {BrowserRouter as Router,Routes,Route } from 'react-router-dom'
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import bg from './assets/bg.avif'
+
+
 
 
 
@@ -21,11 +24,27 @@ const routes=(
   </Router>
 )
 
+const myStyle = {
+  backgroundImage: `url(${bg})`,
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
+  backgroundRepeat: 'no-repeat',
+  minHeight: '100vh',
+  
+};
+
+
 function App() {
   return (
     <>
-      <div className='fixed inset-0 -z-10'>
+      {/* <div className='fixed inset-0 -z-10'>
         <DarkVeil />
+      </div> */}
+
+      <div 
+      className="fixed inset-0 -z-10"
+      style={myStyle}>
+
       </div>
       
      <div>

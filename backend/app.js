@@ -11,7 +11,11 @@ const app=express();
 
 
 app.use(cors({
-    origin:true,
+    // origin:true,
+    origin:"http://localhost:5173",
+    credentials:true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     
     
 }))
@@ -29,8 +33,10 @@ app.get("/", (req, res) => {
 
 //import router
 import userRouter from "./routes/user.route.js";
+import notesRouter from "./routes/note.route.js"
 
 //routes declaration
 app.use('/users',userRouter);
+app.use('/notes',notesRouter)
 
 export {app}

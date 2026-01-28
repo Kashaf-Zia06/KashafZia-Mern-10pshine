@@ -4,6 +4,8 @@ import { useState } from 'react'
 import PasswordInput from '@/components/PasswordInput'
 import { Link } from 'react-router-dom'
 import { validateEmail } from '@/utils/helper'
+import axios from "axios"
+import { useNavigate } from "react-router-dom";
 
 
 const Signup = () => {
@@ -12,6 +14,8 @@ const Signup = () => {
     const [email,setEmail]=useState("")
     const [password,setPassword]=useState("")
     const [error,setError]=useState(null)
+
+    const navigate=useNavigate()
 
 
     const handleSignUp= async (e)=>{
@@ -24,7 +28,7 @@ const Signup = () => {
 
         setError("")
 
-        if(!validateEmail){
+        if(!validateEmail(email)){
             setError("Please enter valid email")
             return;
         }
@@ -39,6 +43,23 @@ const Signup = () => {
         setError("")
 
         //Sign up api call
+
+        try {
+            const res=await axios.post(
+                "http://localhost:5005/users/signup",
+                {userName,email,password},
+                {withCredentials:true},
+
+            )
+            console.log("User signed up:",res.data)
+            navigate("/login"); 
+            
+        } catch (err) {
+            console.log("Signup failed: ",err.message)
+        }
+
+
+
 
 
     }

@@ -68,7 +68,7 @@ const Signup = () => {
     <>
     <Navbar/>
     <div className='flex items-center justify-center mt-26'>
-        <div className='w-96 mx-auto bg-transparent border-[3px] border-white rounded-[30px] px-7 py-10' >
+        <div className='w-96 mx-auto bg-transparent border-[3px] hover:shadow-2xl border-white rounded-[30px] px-7 py-10' >
             <form onSubmit={handleSignUp}>
                 <h4 className='text-2xl mb-7 text-white text-center'>SignUp</h4>
 

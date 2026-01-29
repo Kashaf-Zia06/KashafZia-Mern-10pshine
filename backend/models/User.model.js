@@ -1,37 +1,44 @@
 
-import mongoose,{Schema} from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 
-const userSchema=new Schema(
-{
-    userName:{
-        type:String,
-        unique:true,
-        lowercase:true,
-        trim:true,
-        required:[true,"Name is required"]
-        
-    },
-    email:{
-        type:String,
-        unique:true,
-        lowercase:true,
-        trim:true,
-        required:[true,"Email is required"]
-    },
-    password:{
-        type:String,
-        required:[true,"Password is required"]
-    },
-    refreshToken:{
-        type:String,
-    }
+const userSchema = new Schema(
+    {
+        userName: {
+            type: String,
+            unique: true,
+            lowercase: true,
+            trim: true,
+            required: [true, "Name is required"]
+
+        },
+        email: {
+            type: String,
+            unique: true,
+            lowercase: true,
+            trim: true,
+            required: [true, "Email is required"]
+        },
+        password: {
+            type: String,
+            required: [true, "Password is required"]
+        },
+        refreshToken: {
+            type: String,
+        },
+        resetPasswordToken: {
+            type: String,
+        },
+        resetPasswordExpiry: {
+            type: Date,
+        },
 
 
 
 
-},{timestamps:true})
+    }, { timestamps: true })
 
 //pre is a hook
 //before just  saving the data hash the password using bcrypt
@@ -47,44 +54,58 @@ userSchema.pre("save", async function () {
     console.log("pre save hook")
     // `this` refers to the document being saved
     if (!this.isModified("password")) return;
-   this.password= await bcrypt.hash(this.password,10)
+    this.password = await bcrypt.hash(this.password, 10)
     console.log("hashed password")
 });
 
 
 //using bcrypt to compare password as well , the plain text password given by user and hashed password in db
-userSchema.methods.isPasswordCorrect=async function(password) {
-   return  await bcrypt.compare(password,this.password)
-    
+userSchema.methods.isPasswordCorrect = async function (password) {
+    return await bcrypt.compare(password, this.password)
+
 }
 
 //generate Access Token
-userSchema.methods.generateAccessToken= function() {
+userSchema.methods.generateAccessToken = function () {
     console.log('inside genertae access token function in user model.js')
     return jwt.sign({
         //payload
-        _id:this._id,
-        email:this.email
+        _id: this._id,
+        email: this.email
     },
-    process.env.ACCESS_TOKEN_SECRET,
-    {
-        expiresIn:process.env.ACCESS_TOKEN_EXPIRY
-    }
+        process.env.ACCESS_TOKEN_SECRET,
+        {
+            expiresIn: process.env.ACCESS_TOKEN_EXPIRY
+        }
     )
 }
 
 //generate RefreshToken
-userSchema.methods.generateRefreshToken= function() {
-      console.log('inside genertae refresh token function in user model.js')
+userSchema.methods.generateRefreshToken = function () {
+    console.log('inside genertae refresh token function in user model.js')
     return jwt.sign({
         //payload
-        _id:this._id,
+        _id: this._id,
     },
-    process.env.REFRESH_TOKEN_SECRET,
-    {
-        expiresIn:process.env.REFRESH_TOKEN_EXPIRY
-    }
+        process.env.REFRESH_TOKEN_SECRET,
+        {
+            expiresIn: process.env.REFRESH_TOKEN_EXPIRY
+        }
     )
 }
 
-export const User=mongoose.model("User",userSchema)
+
+userSchema.methods.generatePasswordResetToken = function () {
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    this.resetPasswordToken = crypto
+        .createHash("sha256")
+        .update(resetToken)
+        .digest("hex");
+
+    this.resetPasswordExpiry = Date.now() + 15 * 60 * 1000; // 15 mins
+
+    return resetToken;
+};
+
+export const User = mongoose.model("User", userSchema)

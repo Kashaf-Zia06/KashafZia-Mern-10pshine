@@ -8,6 +8,8 @@ import {BrowserRouter as Router,Routes,Route } from 'react-router-dom'
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import bg from './assets/bg.avif'
+import ForgotPassword from './pages/ForgotPassword.jsx';
+import ResetPassword from './pages/ResetPassword.jsx'
 
 
 
@@ -20,6 +22,9 @@ const routes=(
       <Route path='/dashboard' element={<Home/>}></Route>
       <Route path='/login' element={<Login/>}></Route>
       <Route path='/signup' element={<Signup/>}></Route>
+      <Route path='/forgot-password' element={<ForgotPassword/>}></Route>
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
+
     </Routes>
   </Router>
 )

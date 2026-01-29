@@ -21,3 +21,46 @@ body {
   font-weight: 700;
   font-style: italic;
 }
+
+.animated-border-btn {
+  position: relative;
+  padding: 12px 28px;
+  color: white;
+  background: transparent;
+  border-radius: 12px;
+  font-weight: 500;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.animated-border-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 2px; /* border thickness */
+  border-radius: 12px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    white,
+    transparent
+  );
+  background-size: 300% 300%;
+  animation: borderMove 2s linear infinite;
+  z-index: -1;
+}
+
+/* Inner background so only border shows */
+.animated-border-btn::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  background: #1b102f; /* your button bg color */
+  border-radius: 10px;
+  z-index: -1;
+}
+
+@keyframes borderMove {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}

@@ -10,6 +10,7 @@ import Signup from './pages/Signup';
 import bg from './assets/bg.avif'
 import ForgotPassword from './pages/ForgotPassword.jsx';
 import ResetPassword from './pages/ResetPassword.jsx'
+import LandingPage from './pages/LandingPage.jsx';
 
 
 
@@ -19,6 +20,7 @@ import ResetPassword from './pages/ResetPassword.jsx'
 const routes=(
   <Router>
     <Routes>
+      <Route path='/' element={<LandingPage/>}></Route>
       <Route path='/dashboard' element={<Home/>}></Route>
       <Route path='/login' element={<Login/>}></Route>
       <Route path='/signup' element={<Signup/>}></Route>

@@ -95,9 +95,24 @@ userSchema.methods.generateRefreshToken = function () {
 }
 
 
+// userSchema.methods.generatePasswordResetToken = function () {
+//     const resetToken = crypto.randomBytes(32).toString("hex");
+
+//     this.resetPasswordToken = crypto
+//         .createHash("sha256")
+//         .update(resetToken)
+//         .digest("hex");
+
+//     this.resetPasswordExpiry = Date.now() + 15 * 60 * 1000; // 15 mins
+
+//     return resetToken;
+// };
+
+
 userSchema.methods.generatePasswordResetToken = function () {
     const resetToken = crypto.randomBytes(32).toString("hex");
 
+    // Only set token and expiry on the document, do NOT save yet
     this.resetPasswordToken = crypto
         .createHash("sha256")
         .update(resetToken)
@@ -107,5 +122,4 @@ userSchema.methods.generatePasswordResetToken = function () {
 
     return resetToken;
 };
-
 export const User = mongoose.model("User", userSchema)

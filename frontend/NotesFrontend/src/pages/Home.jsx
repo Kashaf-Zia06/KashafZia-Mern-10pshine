@@ -5,6 +5,10 @@ import { MdAdd, MdOutlineAlarmAdd } from 'react-icons/md'
 import AddEditNotes from './AddEditNotes.jsx'
 import Modal from 'react-modal'
 import axios from 'axios'
+import { useNotes } from "@/context/NotesContext.jsx"
+import { Heading3 } from 'lucide-react'
+import { toast } from 'react-toastify'
+
 
 Modal.setAppElement("#root");
 
@@ -16,24 +20,26 @@ const Home = () => {
     data: null,
   })
 
+  const { filteredNotes,fetchNotes} = useNotes()
+  console.log(filteredNotes)
 
-  const [notes, setNotes] = useState([])
+  
 
-  const fetchNotes = async () => {
-    try {
-      console.log("Inside fetch notes function")
-      const res = await axios.get(
-        "http://localhost:5005/notes/dashboard",
-        {
-          withCredentials: true,
-        })
-      console.log(res)
+  // const fetchNotes = async () => {
+  //   try {
+  //     console.log("Inside fetch notes function")
+  //     const res = await axios.get(
+  //       "http://localhost:5005/notes/dashboard",
+  //       {
+  //         withCredentials: true,
+  //       })
+  //     console.log(res)
 
-      setNotes(res.data.data)
-    } catch (err) {
-      console.log(err.message)
-    }
-  }
+  //     setNotes(res.data.data)
+  //   } catch (err) {
+  //     console.log(err.message)
+  //   }
+  // }
 
   const deleteNote = async (noteId) => {
     try {
@@ -43,11 +49,12 @@ const Home = () => {
         `http://localhost:5005/notes/delete/${noteId}`,{
         withCredentials: true,
       }
+     
 
       )
-      setNotes((prevNotes)=>(
-        prevNotes.filter((note)=>note._id!==noteId)
-      ))
+
+      toast.success("Note deleted successfully")
+      fetchNotes()
       console.log(res)
     } catch (err) {
       console.log(err.message)
@@ -63,9 +70,12 @@ const Home = () => {
     <>
       <Navbar />
       <div className='container mx-auto'>
+         {filteredNotes.length==0 && <h3 className=' text-3xl  no-notes'>No Notes to display!</h3>}
         <div className='grid grid-cols-3 gap-4 mt-8'>
 
-          {notes.map((note) => (
+         
+
+          {filteredNotes.map((note) => (
             <NoteCard
 
               key={note._id}

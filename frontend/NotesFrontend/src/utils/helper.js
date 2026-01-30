@@ -6,6 +6,13 @@ export const validateEmail=(email)=>{
 
 }
 
+// Validate password strength
+export const validatePassword = (password) => {
+    // Minimum 6 chars, at least 1 lowercase, 1 uppercase, 1 number
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
+    return regex.test(password);
+};
+
 
  const getInitials=(name)=>{
     console.log("Inside getInitials")

@@ -11,6 +11,8 @@ import bg from './assets/bg.avif'
 import ForgotPassword from './pages/ForgotPassword.jsx';
 import ResetPassword from './pages/ResetPassword.jsx'
 import LandingPage from './pages/LandingPage.jsx';
+import { ToastContainer } from "react-toastify";
+
 
 
 
@@ -58,6 +60,11 @@ function App() {
 
     {routes}
      </div>
+     <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        theme="dark"
+      />
       </>
   )
 }

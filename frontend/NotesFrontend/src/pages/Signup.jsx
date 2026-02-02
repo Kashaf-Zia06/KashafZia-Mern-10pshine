@@ -4,6 +4,7 @@ import { useState } from 'react'
 import PasswordInput from '@/components/PasswordInput'
 import { Link } from 'react-router-dom'
 import { validateEmail } from '@/utils/helper'
+import { validatePassword } from '@/utils/helper'
 import axios from "axios"
 import { useNavigate } from "react-router-dom";
 
@@ -35,6 +36,14 @@ const Signup = () => {
 
         setError("")
 
+        if (!validatePassword(password)) {
+                    setError(
+                        "Password must be at least 6 characters and include uppercase, lowercase, and a number"
+                    );
+                    return;
+                }
+        
+
         if(!password){
             setError("Please enter password")
             return;
@@ -54,8 +63,16 @@ const Signup = () => {
             console.log("User signed up:",res.data)
             navigate("/login"); 
             
-        } catch (err) {
-            console.log("Signup failed: ",err.message)
+        }
+        // catch (err) {
+        //     console.log("Signup failed: ",err.message)
+        // }
+         catch (err) {
+            if (err.response && err.response.data && err.response.data.message) {
+                setError(err.response.data.message); // now it will show "User doesnot exist"
+            } else {
+                setError("Something went wrong. Please try again.");
+            }
         }
 
 

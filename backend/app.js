@@ -2,6 +2,8 @@ import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
 import dotenv from "dotenv"
+import { globalErrorHandler } from "./middlewares/errorHandler.js"
+
 
 console.log("inside app.js before starting express app")
 
@@ -38,5 +40,7 @@ import notesRouter from "./routes/note.route.js"
 //routes declaration
 app.use('/users',userRouter);
 app.use('/notes',notesRouter)
+
+app.use(globalErrorHandler);
 
 export {app}

@@ -133,6 +133,7 @@
 
 *{
   font-family: Poppins;
+  
 }
 
 .input-box{
@@ -143,6 +144,10 @@
 .input-box{
   font-style: normal;
   font-weight: 200;
+}
+
+.cont{
+  font-family: Quicksand;
 }
 
 .custom-text{
@@ -201,4 +206,22 @@ margin: auto;
   60%  { transform: rotate(15deg); }
   80%  { transform: rotate(-5deg); }
   100% { transform: rotate(0deg); }
+}
+
+.note-content,
+.note-content * {
+  font-family: Quicksand !important;
+  font-style: normal;
+}
+
+.no-notes{
+  @apply text-slate-300 normal-case mt-3 not-italic m-auto text-center align-middle 
+  
+  
+}
+
+.reset-text{
+  font-style: normal;
+  font-weight: 300;
+  margin-bottom: 5px;
 }

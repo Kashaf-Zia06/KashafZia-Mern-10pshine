@@ -4,18 +4,32 @@ import Navbar from "@/components/Navbar";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
+  const [error,setError]=useState("")
 
   const submit = async () => {
     try {
+         if(!email)
+        {
+            setError("Please enter email")
+        }
         console.log("INSIDE SUBMIT AT FROGOT PASSWORD.JSX ")
         await axios.post(
           "http://localhost:5005/users/forgot-password",
           { email }
         );
         alert("Check your email");
-    } catch (err) {
-        console.log(err.message)
-    }
+    } 
+    // catch (err) {
+    //     console.log(err.message)
+    // }
+    catch (err) {
+            console.log(err);
+            if (err.response && err.response.data && err.response.data.message) {
+                setError(err.response.data.message); // Backend errors
+            } else {
+                setError("Something went wrong. Please try again."); // Fallback
+            }
+        }
   };
 
   return (
@@ -31,10 +45,14 @@ const ForgotPassword = () => {
       placeholder="email"
       onChange={e => setEmail(e.target.value)}
       className="input-box bg-transparent border-[3px] text-white" />
+
+                  {error && <p className="text-red-500 mt-[-5px] text-xs mb-2">{error}</p>}
+
      
       <button  
       
       className="text-white rounded-2xl border-black reset-btn "
+
       onClick={submit}>Send Reset Link</button>
     </div>
       </div>

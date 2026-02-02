@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 const LandingPage = () => {
     return (
         <>
-            <h2 className='text-white text-4xl ml-3 py-2 font-medium'>NOTES</h2>
+            <h2 className='text-white text-4xl ml-6 py-2 font-medium'>NOTES</h2>
 
             <div className='grid grid-cols-2 place-content-center'>
 

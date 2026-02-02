@@ -5,14 +5,17 @@ import { useNavigate,useLocation } from 'react-router-dom';
 import SearchBar from './SearchBar';
 import { Target } from 'lucide-react';
 import axios from 'axios';
+import Home from '../pages/Home.jsx'
+import { useNotes } from "@/context/NotesContext.jsx"
 
 const Navbar = () => {
 
     const location=useLocation();
+    const { searchQuery, setSearchQuery } = useNotes()
 
     const hideSearchBar=location.pathname ==='/login' || location.pathname==='/signup' || location.pathname==='/Login' || location.pathname==='/Signup'
-    
-    const [searchQuery, setSearchQuery] = useState("")
+
+    // const [searchQuery, setSearchQuery] = useState("")
 
     const navigate = useNavigate();
 
@@ -34,6 +37,8 @@ const Navbar = () => {
     }
 
     const handleSearch = () => {
+
+
 
     }
 
@@ -57,7 +62,7 @@ const Navbar = () => {
             />)
             }
 
-            <ProfileInfo onLogout={onLogout} />
+            {!hideSearchBar && (<ProfileInfo onLogout={onLogout} />)}
         </div>
     )
 }

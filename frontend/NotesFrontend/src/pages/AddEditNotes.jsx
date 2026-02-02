@@ -175,6 +175,8 @@ import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { MdClose } from 'react-icons/md';
 import { Editor } from '@tinymce/tinymce-react';
+import { ToastContainer, toast } from 'react-toastify';
+
 
 const AddEditNotes = ({ noteData, type, onClose, fetchNotes }) => {
   const [title, setTitle] = useState('');
@@ -202,6 +204,7 @@ const AddEditNotes = ({ noteData, type, onClose, fetchNotes }) => {
         { withCredentials: true }
       );
       fetchNotes();
+      toast.success("Note added successfuly")
       onClose();
     } catch (error) {
       console.log(error);
@@ -216,6 +219,7 @@ const AddEditNotes = ({ noteData, type, onClose, fetchNotes }) => {
         { title, content },
         { withCredentials: true }
       );
+      toast.success("Note edited successfully")
       fetchNotes();
       onClose();
     } catch (error) {

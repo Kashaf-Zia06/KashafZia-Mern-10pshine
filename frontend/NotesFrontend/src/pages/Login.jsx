@@ -1,6 +1,6 @@
 import Navbar from '@/components/Navbar'
 import PasswordInput from '@/components/PasswordInput'
-import { getInitials, validateEmail } from '@/utils/helper'
+import { getInitials, validateEmail, validatePassword } from '@/utils/helper'
 import axios from 'axios'
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
@@ -22,8 +22,11 @@ const Login = () => {
             return;
         }
 
+
+
         setError("")
 
+      
         if (!password) {
             setError("Please enter a password")
             return;
@@ -45,13 +48,28 @@ const Login = () => {
 
 
             )
+            console.log(res)
+            const user = res.data.data.user
+            console.log(res.data.data.user.userName)
+            const userName = res.data.data.user.userName
+            // console.log(userName)
+            // console.log("calling get initial")
+            const initials = getInitials(user.userName)
+            localStorage.setItem("user", JSON.stringify({ ...user, initials }));
+
 
             navigate("/dashboard")
 
             console.log(res.data)
         }
+
+
         catch (err) {
-            console.log("User login failed", err.message)
+            if (err.response && err.response.data && err.response.data.message) {
+                setError(err.response.data.message); // now it will show "User doesnot exist"
+            } else {
+                setError("Something went wrong. Please try again.");
+            }
         }
 
     }
@@ -72,7 +90,7 @@ const Login = () => {
 
                         <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} />
 
-                        {error && <p className='text-red-500 text-xs pb-1 '>{error}</p>}
+                        {error && <p className='text-red-500 text-center mt-[-12px] text-xs pb-1 '>{error}</p>}
 
                         <button onClick={handleLogin} type='submit' className='btn-primary'>Login</button>
 

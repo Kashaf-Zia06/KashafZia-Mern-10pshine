@@ -11,18 +11,18 @@ import bcrypt from "bcrypt"
 
 const generateAccessRefreshTokens=async(userId)=>{
     try {
-        console.log("Inside generateaccessrefresh token function in user controller")
+        // console.log("Inside generateaccessrefresh token function in user controller")
         const user=await User.findById(userId)
-        console.log(user)
+        // console.log(user)
         const accessToken=user.generateAccessToken()
-        console.log(accessToken)
+        // console.log(accessToken)
         
         const refreshToken=user.generateRefreshToken()
-        console.log(refreshToken)
+        // console.log(refreshToken)
         //after generating store refresh token in db as well
         user.refreshToken=refreshToken
         await user.save({validateBeforeSave:false})
-        console.log("refresh token saved in db")
+        // console.log("refresh token saved in db")
 
 
 
@@ -40,15 +40,15 @@ const generateAccessRefreshTokens=async(userId)=>{
 
 
 const registerUser=asyncHandler(async(req,res)=>{
-    console.log("Inside register user")
+    // console.log("Inside register user")
     
     //extracting data
     const {userName,email,password} = req.body
-    console.log(userName)
-    console.log(email)
-    console.log(password)
+    // console.log(userName)
+    // console.log(email)
+    // console.log(password)
 
-    console.log("Validation checks")
+    // console.log("Validation checks")
     //validation checks if any field is empty
    if( 
     [userName,email,password].some((field)=>
@@ -63,12 +63,12 @@ const registerUser=asyncHandler(async(req,res)=>{
   const existingUser = await User.findOne({
     $or:[{userName},{email}]}
    )
-   console.log("Checking whether user exist or not?")
+//    console.log("Checking whether user exist or not?")
    if(existingUser){
     throw new ApiError(402,"User already exists")
    }
 
-   console.log("Creating a user")
+//    console.log("Creating a user")
 
    //creating user entry in database
    const user=await User.create({
@@ -77,7 +77,7 @@ const registerUser=asyncHandler(async(req,res)=>{
     password:password
    })
 
-   console.log("Finding cretaed user")
+//    console.log("Finding cretaed user")
    const createdUser=await User.findById(user._id).select("-password -refreshToken")
 
    if(!createdUser)
@@ -85,7 +85,7 @@ const registerUser=asyncHandler(async(req,res)=>{
     throw new ApiError(500," User Registration failed")
    }
 
-   console.log("Sending response")
+//    console.log("Sending response")
    res.status(200).json(
     new apiResponse(200,"User registered successfully",{createdUser})
    )
@@ -107,43 +107,43 @@ const registerUser=asyncHandler(async(req,res)=>{
 
 
 const login=asyncHandler(async(req,res)=>{
-    console.log("Inside login")
+    
     const {email,password}=req.body;
 
-    console.log(email)
-    console.log(password)
+    // console.log(email)
+    // console.log(password)
     if(!email)
         throw new ApiError(400,"Email is required")
 
     if(!password)
         throw new ApiError(400,"Password is required")
 
-    console.log("finding user in db ")
+    
     const existedUser=await User.findOne({email})
 
-    console.log("printing existed user,",existedUser)
+    // console.log("printing existed user,",existedUser)
 
     if(!existedUser)
         throw new ApiError(402,"User doesnot exist")
 
-    console.log("checking password valid")
+    // console.log("checking password valid")
 
-    console.log(existedUser.password)
+    // console.log(existedUser.password)
 
     const passwordValid=await existedUser.isPasswordCorrect(password)
 
-    console.log(passwordValid)
+    // console.log(passwordValid)
 
     if(!passwordValid)
     {
         throw new ApiError(402,"Incorrect password")
     }
 
-    console.log("going in  generateAccessRefreshTokens function before")
+    // console.log("going in  generateAccessRefreshTokens function before")
     const {accessToken,refreshToken}=await generateAccessRefreshTokens(existedUser._id)
-    console.log("coming out of  generateAccessRefreshTokens function ")
-    console.log(accessToken)
-    console.log(refreshToken)
+    // console.log("coming out of  generateAccessRefreshTokens function ")
+    // console.log(accessToken)
+    // console.log(refreshToken)
 
     const loggedInUser=await User.findById(existedUser._id).select("-password -refreshToken")
 
@@ -158,7 +158,7 @@ const login=asyncHandler(async(req,res)=>{
         // secure:false
     }
 
-    console.log("sending repsonse after logging")
+    // console.log("sending repsonse after logging")
 
     return res
   .status(200)

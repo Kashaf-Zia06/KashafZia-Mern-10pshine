@@ -2,7 +2,7 @@ import nodemailer from "nodemailer";
 
 export const sendEmail = async ({ to, subject, html }) => {
 
-    console.log("Inside sendEmail of utils helper")
+    // console.log("Inside sendEmail of utils helper")
     const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {

@@ -14,7 +14,6 @@ const Login = () => {
     const navigate = useNavigate()
 
     const handleLogin = async (e) => {
-        console.log("inside handle login og login.jsx")
         e.preventDefault()
 
         if (!validateEmail(email)) {
@@ -36,10 +35,10 @@ const Login = () => {
 
 
         //Login Api call
-        console.log("calling login api")
+        
 
         try {
-            console.log("inside try block of login api posting axios")
+           
 
             const res = await axios.post(
                 "http://localhost:5005/users/login",
@@ -48,19 +47,16 @@ const Login = () => {
 
 
             )
-            console.log(res)
+            
             const user = res.data.data.user
-            console.log(res.data.data.user.userName)
             const userName = res.data.data.user.userName
-            // console.log(userName)
-            // console.log("calling get initial")
             const initials = getInitials(user.userName)
             localStorage.setItem("user", JSON.stringify({ ...user, initials }));
 
 
             navigate("/dashboard")
 
-            console.log(res.data)
+            
         }
 
 

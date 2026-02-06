@@ -8,13 +8,13 @@ import mongoose from "mongoose";
 const addNotes = asyncHandler(async (req, res) => {
     const { title, content } = req.body
 
-    console.log("Req.user:", req.user);
+    // console.log("Req.user:", req.user);
     if (!req.user) {
         throw new ApiError(401, "User not authenticated");
     }
 
-    console.log("Cookies:", req.cookies);
-    console.log("Authorization Header:", req.headers.authorization);
+    // console.log("Cookies:", req.cookies);
+    // console.log("Authorization Header:", req.headers.authorization);
 
 
     if (!title)
@@ -47,16 +47,16 @@ const addNotes = asyncHandler(async (req, res) => {
         }
 
 
-        console.log("trying to add notes")
+        // console.log("trying to add notes")
         await newNote.save()
-        console.log("Note added")
+        // console.log("Note added")
 
         res.status(200).json(
             new apiResponse(200, "Notes added successfully", options)
         )
 
     } catch (error) {
-        console.log(error.message)
+        // console.log(error.message)
 
     }
 
@@ -83,11 +83,11 @@ const addNotes = asyncHandler(async (req, res) => {
 
 const getUserNotes = async (req, res) => {
     try {
-        console.log("Inside getUserNotes controller");
-        console.log("req.user:", req.user);
+        // console.log("Inside getUserNotes controller");
+        // console.log("req.user:", req.user);
 
         const notes = await Notes.find({ userId: req.user._id });
-        console.log("Fetched notes:", notes);
+        // console.log("Fetched notes:", notes);
 
         res.status(200).json({
             statusCode: 200,
@@ -96,7 +96,7 @@ const getUserNotes = async (req, res) => {
             data: notes || []   // never null
         });
     } catch (err) {
-        console.log("Error fetching notes:", err);
+        // console.log("Error fetching notes:", err);
         res.status(500).json({
             statusCode: 500,
             message: "Internal server error",
@@ -110,7 +110,7 @@ const getUserNotes = async (req, res) => {
 
 const editNotes = asyncHandler(async (req, res) => {
     try {
-        console.log("Inside edit notes controller")
+        // console.log("Inside edit notes controller")
         const { title, content } = req.body;
 
         const note = await Notes.findOneAndUpdate(
@@ -127,7 +127,7 @@ const editNotes = asyncHandler(async (req, res) => {
 
 
     } catch (err) {
-        console.log(err.message)
+        // console.log(err.message)
 
     }
 
@@ -136,12 +136,12 @@ const editNotes = asyncHandler(async (req, res) => {
 const deleteNotes = asyncHandler(async (req, res) => {
 
     try {
-        console.log("Inside delet notes controller")
-        console.log(req)
+        // console.log("Inside delet notes controller")
+        // console.log(req)
         const {noteId}  = req.params
-        console.log("Notes id is:",noteId)
+        // console.log("Notes id is:",noteId)
         const user_id = req.user._id
-        console.log("User id is ",user_id)
+        // console.log("User id is ",user_id)
 
 
         if (!noteId) {
@@ -151,8 +151,8 @@ const deleteNotes = asyncHandler(async (req, res) => {
             });
         }
 
-        console.log(noteId)
-        console.log(user_id)
+        // console.log(noteId)
+        // console.log(user_id)
 
         await Notes.findOneAndDelete(
             {
@@ -168,7 +168,7 @@ const deleteNotes = asyncHandler(async (req, res) => {
         })
 
     } catch (err) {
-        console.log(err.message)
+        // console.log(err.message)
     }
 
 })

@@ -60,7 +60,7 @@ const Signup = () => {
                 {withCredentials:true},
 
             )
-            console.log("User signed up:",res.data)
+            
             navigate("/login"); 
             
         }

@@ -43,8 +43,6 @@ const Home = () => {
 
   const deleteNote = async (noteId) => {
     try {
-      console.log("Inside on delete on home.jsx")
-      console.log(noteId)
       const res = await axios.delete(
         `http://localhost:5005/notes/delete/${noteId}`,{
         withCredentials: true,
@@ -55,7 +53,7 @@ const Home = () => {
 
       toast.success("Note deleted successfully")
       fetchNotes()
-      console.log(res)
+      
     } catch (err) {
       console.log(err.message)
     }

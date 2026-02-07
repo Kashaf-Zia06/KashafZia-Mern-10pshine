@@ -4,33 +4,35 @@ import { ApiError } from "../utils/apiError.js";
 import { apiResponse } from "../utils/apiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import mongoose from "mongoose";
+import logger from "../logger.js";
 
 const addNotes = asyncHandler(async (req, res) => {
     const { title, content } = req.body
 
-    // console.log("Req.user:", req.user);
+
     if (!req.user) {
+        logger.warn("Add note failed: user not authenticated");
         throw new ApiError(401, "User not authenticated");
     }
 
-    // console.log("Cookies:", req.cookies);
-    // console.log("Authorization Header:", req.headers.authorization);
-
-
-    if (!title)
+    if (!title) {
+        logger.warn({ userId: req.user._id }, "Add note failed, title is required")
         throw new ApiError(401, "Title is required")
-
+    }
     if (!content) {
+        logger.warn({ userId: req.user._id }, "Add note failed,content is required")
         throw new ApiError(401, "Content is required")
     }
-
-
 
     try {
         const user = await User.findById(
             req.user._id
         )
 
+        if (!user) {
+
+            logger.warn({ userId: req.user._id }, "Add note failed: user not found");
+        }
 
         const newNote = new Notes(
             {
@@ -46,17 +48,16 @@ const addNotes = asyncHandler(async (req, res) => {
             secure: false
         }
 
-
-        // console.log("trying to add notes")
         await newNote.save()
-        // console.log("Note added")
+        logger.info({ userId: req.user._id, noteId: newNote._id }, "Note added successfully");
 
         res.status(200).json(
             new apiResponse(200, "Notes added successfully", options)
         )
 
     } catch (error) {
-        // console.log(error.message)
+        logger.error({ err: error, userId: req.user._id }, "Error adding note");
+        throw new ApiError(500, error.message);
 
     }
 
@@ -67,27 +68,15 @@ const addNotes = asyncHandler(async (req, res) => {
 })
 
 
-// const getUserNotes=asyncHandler(async(req,res)=>{
-//     console.log("Inside get user notes function controller")
-//     console.log(req.user._id)
-//     const notes= await Notes.findById(req.user._id);
-
-//     res.status(200).json(
-//         new apiResponse(200,"Notes fetched successfully",notes)
-
-//     )
-
-// })
-
-
-
 const getUserNotes = async (req, res) => {
+
+    logger.info({ userId: req.user._id }, "Get user notes request received");
     try {
-        // console.log("Inside getUserNotes controller");
-        // console.log("req.user:", req.user);
 
         const notes = await Notes.find({ userId: req.user._id });
-        // console.log("Fetched notes:", notes);
+
+        logger.info({ userId: req.user._id, notesCount: notes.length }, "User notes fetched successfully");
+
 
         res.status(200).json({
             statusCode: 200,
@@ -96,7 +85,7 @@ const getUserNotes = async (req, res) => {
             data: notes || []   // never null
         });
     } catch (err) {
-        // console.log("Error fetching notes:", err);
+        logger.error({ err: err }, "Error fetching user notes");
         res.status(500).json({
             statusCode: 500,
             message: "Internal server error",
@@ -109,8 +98,9 @@ const getUserNotes = async (req, res) => {
 
 
 const editNotes = asyncHandler(async (req, res) => {
+    // logger.info({ userId: req.user._id, noteId }, "Edit note request received");
     try {
-        // console.log("Inside edit notes controller")
+
         const { title, content } = req.body;
 
         const note = await Notes.findOneAndUpdate(
@@ -118,6 +108,14 @@ const editNotes = asyncHandler(async (req, res) => {
             { title, content },
             { new: true }
         );
+
+
+        if (!note) {
+            logger.warn({ userId: req.user._id, noteId: req.params._id }, "Edit note failed: note not found");
+            throw new ApiError(404, "Note not found");
+        }
+
+        logger.info("Note updated successfully");
 
         res.status(200).json({
             success: true,
@@ -127,8 +125,7 @@ const editNotes = asyncHandler(async (req, res) => {
 
 
     } catch (err) {
-        // console.log(err.message)
-
+        logger.error({ err, userId:req.user._id, noteId:req.params._id }, "Error updating note");
     }
 
 })
@@ -136,23 +133,21 @@ const editNotes = asyncHandler(async (req, res) => {
 const deleteNotes = asyncHandler(async (req, res) => {
 
     try {
-        // console.log("Inside delet notes controller")
-        // console.log(req)
-        const {noteId}  = req.params
-        // console.log("Notes id is:",noteId)
+
+        const { noteId } = req.params
+
         const user_id = req.user._id
-        // console.log("User id is ",user_id)
+
+        logger.info({ userId:user_id, noteId }, "Delete note request received");
 
 
         if (!noteId) {
+            logger.warn( "Delete note failed: noteId is missing");
             return res.status(400).json({
                 success: false,
                 message: "Note ID is required",
             });
         }
-
-        // console.log(noteId)
-        // console.log(user_id)
 
         await Notes.findOneAndDelete(
             {
@@ -162,13 +157,16 @@ const deleteNotes = asyncHandler(async (req, res) => {
             }
         )
 
+        logger.info("Note deleted successfully");
+
         res.status(200).json({
-            success:true,
-            message:"Note deleted successfully",
+            success: true,
+            message: "Note deleted successfully",
         })
 
     } catch (err) {
-        // console.log(err.message)
+        logger.error({ err, userId:user_id, noteId }, "Error deleting note");
+        throw new ApiError(500, err.message);
     }
 
 })

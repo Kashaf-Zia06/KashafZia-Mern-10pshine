@@ -18,7 +18,7 @@ import { User } from "../models/User.model.js";
 describe("User Controller Unit Tests", () => {
 
   afterEach(() => {
-    sinon.restore(); // ✅ now runs after EVERY test
+    sinon.restore(); //  now runs after EVERY test
   });
 
   // =========================
@@ -111,7 +111,7 @@ describe("User Controller Unit Tests", () => {
 
     await logOut(req, res);
 
-    // ✅ Assertions
+    //  Assertions
     expect(res.clearCookie.called).to.be.true;
     expect(res.json.calledOnce).to.be.true;
   });
@@ -130,7 +130,7 @@ it("should send reset password email successfully", async () => {
 
   sinon.stub(User, "findOne").resolves(fakeUser);
 
-  // ✅ stub nodemailer instead of ESM export
+  // stub nodemailer instead of ESM export
   const sendMailStub = sinon.stub().resolves();
   sinon.stub(nodemailer, "createTransport").returns({ sendMail: sendMailStub });
 
@@ -172,7 +172,7 @@ it("should reset password successfully", async () => {
   // call the wrapped handler (DON'T await it — it returns undefined)
   resetPassword(req, res, next);
 
-  // ✅ allow internal awaited promises to finish
+  // allow internal awaited promises to finish
   await new Promise((r) => setImmediate(r));
 
   // if it errored, it would call next(err)

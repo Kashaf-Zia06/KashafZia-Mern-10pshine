@@ -3,9 +3,10 @@ import cors from "cors"
 import cookieParser from "cookie-parser"
 import dotenv from "dotenv"
 import { globalErrorHandler } from "./middlewares/errorHandler.js"
+import logger from "./logger.js"
 
 
-console.log("inside app.js before starting express app")
+
 
 dotenv.config({ path: './.env' });
 
@@ -14,7 +15,7 @@ const app=express();
 
 app.use(cors({
     // origin:true,
-    origin:"http://localhost:5173",
+    origin:"http://localhost:5175",
     credentials:true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -40,6 +41,15 @@ import notesRouter from "./routes/note.route.js"
 //routes declaration
 app.use('/users',userRouter);
 app.use('/notes',notesRouter)
+
+
+app.use((req, res, next) => {
+  logger.info({
+    method: req.method,
+    url: req.url,
+  }, "Incoming request");
+  next();
+});
 
 app.use(globalErrorHandler);
 

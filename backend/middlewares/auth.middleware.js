@@ -3,41 +3,12 @@ import jwt from "jsonwebtoken"
 import { ApiError } from "../utils/apiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/User.model.js";
-
-// export const verifyJwt=asyncHandler(async(req,res,next)=>{
-//    try {
-//     console.log('inside auth middleware')
-//     const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "")
-//     // const token = req.cookies?.accessToken || req.get("Authorization")?.replace("Bearer ", "");
-//     console.log("Token",token)
-//      if(!token){
-//          throw new ApiError(402,"User not authenticated,token not available")
-//      }
- 
-//      const decodedToken=jwt.verify(token,process.env.ACCESS_TOKEN_SECRET)
-//      console.log(decodedToken)
-//      const user=await User.findById(decodedToken._id).select("-password -refreshToken")
- 
-//      if(!user)
-//          throw new ApiError(402,"User not authenticated,invalid token")
- 
-//      req.user=user
-//      next()
-//    } catch (error) {
-//     throw new ApiError(500,error.message)
-    
-//    }
-
-    
-
-
-
-// })
+import logger from "../logger.js";
 
 
 export const verifyJwt = asyncHandler(async (req, res, next) => {
   try {
-    console.log('inside auth middleware');
+
     let token = null;
 
     if (req.cookies?.accessToken) {
@@ -46,20 +17,25 @@ export const verifyJwt = asyncHandler(async (req, res, next) => {
       token = req.header("Authorization").replace("Bearer ", "");
     }
 
-    console.log("Token:", token);
-
     if (!token) {
+      logger.warn("JWT verification failed: token not provided");
       throw new ApiError(402, "User not authenticated, token not available");
     }
 
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     const user = await User.findById(decodedToken._id).select("-password -refreshToken");
 
-    if (!user) throw new ApiError(402, "User not authenticated, invalid token");
+    if (!user) {
+      logger.warn({ userId: decodedToken._id }, "JWT verification failed: user not found");
+
+      throw new ApiError(402, "User not authenticated, invalid token");
+    }
 
     req.user = user;
     next();
-  } catch (error) {
+  }
+   catch (error) {
+    logger.error({ err: error }, "JWT verification error");
     throw new ApiError(500, error.message);
   }
 });

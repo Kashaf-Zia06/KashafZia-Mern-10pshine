@@ -40,22 +40,13 @@ const userSchema = new Schema(
 
     }, { timestamps: true })
 
-//pre is a hook
-//before just  saving the data hash the password using bcrypt
-//Never use callback function with 'pre' as callbacks cant use 'this' 
 
-// Hash password before saving.
-// Use the correct middleware signature for Mongoose pre('save') hooks.
-// For async middleware: do not include (err, req, res, next) parameters —
-// use a regular async function and either return/throw or call next() in
-// non-async style. Arrow functions should be avoided because they
-// don't bind `this`.
 userSchema.pre("save", async function () {
-    console.log("pre save hook")
+  
     // `this` refers to the document being saved
     if (!this.isModified("password")) return;
     this.password = await bcrypt.hash(this.password, 10)
-    console.log("hashed password")
+
 });
 
 
@@ -67,7 +58,7 @@ userSchema.methods.isPasswordCorrect = async function (password) {
 
 //generate Access Token
 userSchema.methods.generateAccessToken = function () {
-    console.log('inside genertae access token function in user model.js')
+   
     return jwt.sign({
         //payload
         _id: this._id,
@@ -82,7 +73,7 @@ userSchema.methods.generateAccessToken = function () {
 
 //generate RefreshToken
 userSchema.methods.generateRefreshToken = function () {
-    console.log('inside genertae refresh token function in user model.js')
+   
     return jwt.sign({
         //payload
         _id: this._id,
@@ -95,18 +86,6 @@ userSchema.methods.generateRefreshToken = function () {
 }
 
 
-// userSchema.methods.generatePasswordResetToken = function () {
-//     const resetToken = crypto.randomBytes(32).toString("hex");
-
-//     this.resetPasswordToken = crypto
-//         .createHash("sha256")
-//         .update(resetToken)
-//         .digest("hex");
-
-//     this.resetPasswordExpiry = Date.now() + 15 * 60 * 1000; // 15 mins
-
-//     return resetToken;
-// };
 
 
 userSchema.methods.generatePasswordResetToken = function () {

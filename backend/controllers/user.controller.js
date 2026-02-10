@@ -6,32 +6,39 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import crypto from "crypto";
 import { sendEmail } from "../utils/sendEmail.js";
 import bcrypt from "bcrypt"
+import logger from "../logger.js";
+import { log } from "console";
 
 
 
-const generateAccessRefreshTokens=async(userId)=>{
+const generateAccessRefreshTokens = async (userId) => {
     try {
-        // console.log("Inside generateaccessrefresh token function in user controller")
-        const user=await User.findById(userId)
-        // console.log(user)
-        const accessToken=user.generateAccessToken()
-        // console.log(accessToken)
-        
-        const refreshToken=user.generateRefreshToken()
-        // console.log(refreshToken)
-        //after generating store refresh token in db as well
-        user.refreshToken=refreshToken
-        await user.save({validateBeforeSave:false})
-        // console.log("refresh token saved in db")
+
+        const user = await User.findById(userId)
+
+        if (!user) {
+            logger.warn({ userId }, "User not found while generating tokens");
+            throw new ApiError(404, "User not found");
+        }
+
+        logger.info({ userId }, "Generating Access and Refresh tokens")
+
+        const accessToken = user.generateAccessToken()
+        const refreshToken = user.generateRefreshToken()
+
+        user.refreshToken = refreshToken
+
+        await user.save({ validateBeforeSave: false })
+
+        logger.info({ userId }, "Tokens generated successfully");
+
+        return { accessToken, refreshToken }
 
 
-
-        return {accessToken,refreshToken}
-        
-        
     } catch (error) {
-        throw new ApiError(500,error.message)
-        
+        logger.error({ err: error, userId }, "Error generating access/refresh tokens");
+        throw new ApiError(500, error.message)
+
     }
 
 
@@ -39,245 +46,168 @@ const generateAccessRefreshTokens=async(userId)=>{
 
 
 
-const registerUser=asyncHandler(async(req,res)=>{
-    // console.log("Inside register user")
-    
-    //extracting data
-    const {userName,email,password} = req.body
-    // console.log(userName)
-    // console.log(email)
-    // console.log(password)
+const registerUser = asyncHandler(async (req, res) => {
 
-    // console.log("Validation checks")
+    const { userName, email, password } = req.body
+
+    logger.info({ userName, email }, "User registration request")
+
     //validation checks if any field is empty
-   if( 
-    [userName,email,password].some((field)=>
-    field?.trim()==="")
+    if (
+        [userName, email, password].some((field) =>
+            field?.trim() === "")) {
+        logger.warn({ email }, "Required fields missing")
+        throw new ApiError(400, "Required field is missing")
+    }
 
-   ){
-    throw new ApiError(400,"Required field is missing")
-   }
 
-   
-   //if user already exists
-  const existingUser = await User.findOne({
-    $or:[{userName},{email}]}
-   )
-//    console.log("Checking whether user exist or not?")
-   if(existingUser){
-    throw new ApiError(402,"User already exists")
-   }
+    //if user already exists
+    const existingUser = await User.findOne({
+        $or: [{ userName }, { email }]
+    }
+    )
 
-//    console.log("Creating a user")
 
-   //creating user entry in database
-   const user=await User.create({
-    userName:userName.toLowerCase(),
-    email:email,
-    password:password
-   })
-
-//    console.log("Finding cretaed user")
-   const createdUser=await User.findById(user._id).select("-password -refreshToken")
-
-   if(!createdUser)
-   {
-    throw new ApiError(500," User Registration failed")
-   }
-
-//    console.log("Sending response")
-   res.status(200).json(
-    new apiResponse(200,"User registered successfully",{createdUser})
-   )
+    if (existingUser) {
+        logger.warn({ email, userName }, "User already exists, Registration failed!")
+        throw new ApiError(402, "User already exists")
+    }
 
 
 
+    //creating user entry in database
+    const user = await User.create({
+        userName: userName.toLowerCase(),
+        email: email,
+        password: password
+    })
 
 
+    const createdUser = await User.findById(user._id).select("-password -refreshToken")
+
+    logger.info({ userId: user._id }, "User created")
+
+    if (!createdUser) {
+        logger.warn({ userId: user._id }, "Registration failed")
+        throw new ApiError(500, " User Registration failed")
+    }
+
+    logger.info({ userId: user._id }, "User registered successfully");
+    res.status(200).json(
+        new apiResponse(200, "User registered successfully", { createdUser })
+    )
 
 
-
-
-
-
-
-    
-    
 })
 
 
-const login=asyncHandler(async(req,res)=>{
-    
-    const {email,password}=req.body;
+const login = asyncHandler(async (req, res) => {
 
-    // console.log(email)
-    // console.log(password)
-    if(!email)
-        throw new ApiError(400,"Email is required")
+    const { email, password } = req.body;
+    logger.info({ email }, "Login request received");
 
-    if(!password)
-        throw new ApiError(400,"Password is required")
-
-    
-    const existedUser=await User.findOne({email})
-
-    // console.log("printing existed user,",existedUser)
-
-    if(!existedUser)
-        throw new ApiError(402,"User doesnot exist")
-
-    // console.log("checking password valid")
-
-    // console.log(existedUser.password)
-
-    const passwordValid=await existedUser.isPasswordCorrect(password)
-
-    // console.log(passwordValid)
-
-    if(!passwordValid)
-    {
-        throw new ApiError(402,"Incorrect password")
+    if (!email) {
+        logger.warn("Login failed: email missing");
+        throw new ApiError(400, "Email is required")
     }
 
-    // console.log("going in  generateAccessRefreshTokens function before")
-    const {accessToken,refreshToken}=await generateAccessRefreshTokens(existedUser._id)
-    // console.log("coming out of  generateAccessRefreshTokens function ")
-    // console.log(accessToken)
-    // console.log(refreshToken)
+    if (!password) {
+        logger.warn({ email }, "Login failed: password missing");
+        throw new ApiError(400, "Password is required")
+    }
 
-    const loggedInUser=await User.findById(existedUser._id).select("-password -refreshToken")
+    const existedUser = await User.findOne({ email })
 
-    
+    if (!existedUser) {
+        logger.warn({ email }, "Login failed: user does not exist");
+        throw new ApiError(402, "User doesnot exist")
+    }
 
-    // console.log(loggedInUser)
 
-    const options={
-        httpOnly:true,
-        secure:false,
-         sameSite: "lax"
+    const passwordValid = await existedUser.isPasswordCorrect(password)
+
+    if (!passwordValid) {
+        logger.warn({ email, userId: existedUser._id }, "Login failed: incorrect password");
+        throw new ApiError(402, "Incorrect password")
+    }
+
+    logger.info({ userId: existedUser._id }, "Password verified");
+
+    const { accessToken, refreshToken } = await generateAccessRefreshTokens(existedUser._id)
+    const loggedInUser = await User.findById(existedUser._id).select("-password -refreshToken")
+
+    const options = {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax"
         // secure:false
     }
 
-    // console.log("sending repsonse after logging")
+    logger.info({ userId: existedUser._id }, "User logged in successfully");
 
     return res
-  .status(200)
-  .cookie("accessToken", accessToken, options)
-  .cookie("refreshToken", refreshToken, options)
-  .json(
-    new apiResponse(200, "User successfully loggedIn", {
-      user: loggedInUser,
-      accessToken,
-      refreshToken
-    })
-  );
-
-
-
-
-
-  
+        .status(200)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
+        .json(
+            new apiResponse(200, "User successfully loggedIn", {
+                user: loggedInUser,
+                accessToken,
+                refreshToken
+            })
+        );
 
 })
 
 
-// const logOut=asyncHandler(async(req,res)=>{
-
-//     console.log("Inside logout function")
-//     await User.findById(
-//         req.user._id,
-//         {
-//             $set:
-//                 {
-//                     refreshToken:undefined
-//                 }
-            
-//         },
-//         {
-//             new:true
-//         }
-//     )
-
-//     const options={
-//         httpOnly:true,
-//         secure:false
-//     }
-
-
-//     res.status(200).
-//     clearCookie("accessToken",options).
-//     clearCookie("refreshToken",options).
-//     json(
-//         new apiResponse(200,"User logged out successfully",options)
-//     )
-
-// })
 
 const logOut = asyncHandler(async (req, res) => {
-  res.clearCookie("accessToken", {
-    httpOnly: true,
-    secure: false,
-    sameSite: "lax",
-  });
 
-  res.clearCookie("refreshToken", {
-    httpOnly: true,
-    secure: false,
-    sameSite: "lax",
-  });
+    res.clearCookie("accessToken", {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+    });
 
-  return res.status(200).json({
-    success: true,
-    message: "Logged out successfully",
-  });
+    res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+    });
+
+    logger.info("Tokens cleared, user logged out");
+
+    return res.status(200).json({
+        success: true,
+        message: "Logged out successfully",
+    });
 });
 
 
-// const forgotPassword = asyncHandler(async (req, res) => {
-//     console.log("Inside forgot password iin user controller")
-//     const { email } = req.body;
-//     console.log(email)
-//     if (!email) throw new ApiError(400, "Email is required");
-
-//     const user = await User.findOne({ email });
-//     console.log(user)
-//     if (!user) throw new ApiError(404, "User not found");
-
-//     console.log("resetting password token")
-//     const resetToken = user.generatePasswordResetToken();
-//     await user.save({ validateBeforeSave: false });
-
-//     const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
-
-//       console.log("sending mail reset")
-//     await sendEmail({
-//         to: user.email,
-//         subject: "Reset your password",
-//         html: `
-//             <p>You requested a password reset</p>
-//             <p>Click below to reset:</p>
-//             <a href="${resetUrl}">${resetUrl}</a>
-//             <p>This link expires in 15 minutes</p>
-//         `,
-//     });
-
-//     res.status(200).json(
-//         new apiResponse(200, "Password reset link sent to email")
-//     );
-// });
 
 const forgotPassword = asyncHandler(async (req, res) => {
     const { email } = req.body;
-    if (!email) throw new ApiError(400, "Email is required");
+    logger.info({ email }, "Forgot password request received");
+
+    if (!email) {
+        logger.warn("Forgot password failed: email missing");
+        throw new ApiError(400, "Email is required");
+    }
 
     const user = await User.findOne({ email });
-    if (!user) throw new ApiError(404, "User not found");
+
+    if (!user) {
+        logger.warn({ email }, "Forgot password failed: user not found");
+        throw new ApiError(404, "User not found");
+    }
 
     // Generate reset token
     const resetToken = user.generatePasswordResetToken();
 
     // Save ONLY token and expiry
     await user.save({ validateBeforeSave: false }); // DO NOT touch password
+
+    logger.info({ userId: user._id }, "Password reset token generated and saved");
 
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
@@ -292,6 +222,8 @@ const forgotPassword = asyncHandler(async (req, res) => {
         `,
     });
 
+    logger.info({ userId: user._id }, "Password reset email sent");
+
     res.status(200).json(
         new apiResponse(200, "Password reset link sent to email")
     );
@@ -300,43 +232,13 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
 
 
-// const resetPassword = asyncHandler(async (req, res) => {
-//   console.log("Inside reset password")
-//     const { token } = req.params;
-//     const { password } = req.body;
-
-//     console.log("token:", token)
-//     console.log("password",password)
-
-//     console.log("creating hashed token")
-
-//     const hashedToken = crypto
-//         .createHash("sha256")
-//         .update(token)
-//         .digest("hex");
-
-//     const user = await User.findOne({
-//         resetPasswordToken: hashedToken,
-//         resetPasswordExpiry: { $gt: Date.now() },
-//     });
-
-//     if (!user) throw new ApiError(400, "Token invalid or expired");
-
-//     user.password = password; // bcrypt hook will hash
-//     user.resetPasswordToken = undefined;
-//     user.resetPasswordExpiry = undefined;
-
-//     await user.save();
-
-//     res.status(200).json(
-//         new apiResponse(200, "Password reset successful")
-//     );
-// });
 
 
 const resetPassword = asyncHandler(async (req, res) => {
     const { token } = req.params;
     const { password } = req.body;
+
+    logger.info("Password reset request received");
 
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
@@ -345,7 +247,12 @@ const resetPassword = asyncHandler(async (req, res) => {
         resetPasswordExpiry: { $gt: Date.now() },
     });
 
-    if (!user) throw new ApiError(400, "Token invalid or expired");
+    if (!user) {
+        logger.warn("Password reset failed: invalid or expired token");
+        throw new ApiError(400, "Token invalid or expired");
+    }
+
+    logger.info({ userId: user._id }, "Valid reset token found, resetting password");
 
     // Set new password — pre('save') hook will hash it automatically
     user.password = password;
@@ -356,6 +263,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 
     await user.save(); // triggers password hash
 
+    logger.info({ userId: user._id }, "Password reset successfully");
     res.status(200).json(
         new apiResponse(200, "Password reset successful")
     );
@@ -364,4 +272,4 @@ const resetPassword = asyncHandler(async (req, res) => {
 
 
 
-export  {registerUser,login,logOut,forgotPassword,resetPassword}
+export { registerUser, login, logOut, forgotPassword, resetPassword }

@@ -1,18 +1,22 @@
-name: Build
+name: SonarQube CI
+
 on:
   push:
     branches:
-      - main
+      - '**'  # trigger on all branches
   pull_request:
+    branches:
+      - main  # trigger for PRs targeting main
     types: [opened, synchronize, reopened]
+
 jobs:
   sonarqube:
-    name: SonarQube
+    name: SonarQube Analysis
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:

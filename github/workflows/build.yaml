@@ -1,0 +1,25 @@
+name: SonarQube CI
+
+on:
+  push:
+    branches:
+      - '**'  # trigger on all branches
+  pull_request:
+    branches:
+      - main  # trigger for PRs targeting main
+    types: [opened, synchronize, reopened]
+
+jobs:
+  sonarqube:
+    name: SonarQube Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+
